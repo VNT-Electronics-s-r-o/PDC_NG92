@@ -114,12 +114,12 @@ void lvCheckGreen(void)
 	lv_obj_t * obj;
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0x41A535), LV_PART_MAIN);	
-	lv_obj_set_size(obj, 310, 50);
+	lv_obj_set_size(obj, 310, 40);
 	lv_obj_t * label = lv_label_create(obj);
 	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
-	lv_label_set_text(label, "!CHECK!");
+	lv_label_set_text(label, "OK");
 	lv_obj_center(label);	
-	lv_obj_set_pos(obj, 5, 190);
+	lv_obj_set_pos(obj, 5, 250);
 }
 
 void lvCheckGreenLight(void)
@@ -127,12 +127,8 @@ void lvCheckGreenLight(void)
 	lv_obj_t * obj;
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0xB0BD2F), LV_PART_MAIN);	
-	lv_obj_set_size(obj, 310, 50);
-	lv_obj_t * label = lv_label_create(obj);
-	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
-	lv_label_set_text(label, "!CHECK!");
-	lv_obj_center(label);	
-	lv_obj_set_pos(obj, 5, 250);
+	lv_obj_set_size(obj, 310, 40);
+	lv_obj_set_pos(obj, 5, 295);
 }
 
 void lvCheckYellow(void)
@@ -140,12 +136,8 @@ void lvCheckYellow(void)
 	lv_obj_t * obj;
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0xFEED00), LV_PART_MAIN);	
-	lv_obj_set_size(obj, 310, 50);
-	lv_obj_t * label = lv_label_create(obj);
-	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
-	lv_label_set_text(label, "!CHECK!");
-	lv_obj_center(label);	
-	lv_obj_set_pos(obj, 5, 310);
+	lv_obj_set_size(obj, 310, 40);
+	lv_obj_set_pos(obj, 5, 340);
 }
 
 void lvCheckOrange(void)
@@ -153,12 +145,12 @@ void lvCheckOrange(void)
 	lv_obj_t * obj;
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0xE5610E), LV_PART_MAIN);	
-	lv_obj_set_size(obj, 310, 50);
+	lv_obj_set_size(obj, 310, 40);
 	lv_obj_t * label = lv_label_create(obj);
 	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
 	lv_label_set_text(label, "!CHECK!");
 	lv_obj_center(label);	
-	lv_obj_set_pos(obj, 5, 370);
+	lv_obj_set_pos(obj, 5, 385);
 }
 
 void lvCheckRed(void)
@@ -166,7 +158,7 @@ void lvCheckRed(void)
 	lv_obj_t * obj;
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0xCE1719), LV_PART_MAIN);	
-	lv_obj_set_size(obj, 310, 50);
+	lv_obj_set_size(obj, 310, 40);
 	lv_obj_t * label = lv_label_create(obj);
 	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
 	lv_label_set_text(label, "!CHECK!");
