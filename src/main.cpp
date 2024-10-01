@@ -109,6 +109,61 @@ void lv_example_arc_2(void)
     // lv_anim_start(&a);
 }
 
+void lv_FenceVoltage(void)
+{
+	/*Create an Arc*/
+    lv_obj_t * arc = lv_arc_create(lv_screen_active());
+	lv_obj_set_style_arc_color(arc, lv_color_hex(0x4040FF), LV_PART_INDICATOR | LV_STATE_DEFAULT );
+    lv_arc_set_rotation(arc, 270);
+    lv_arc_set_bg_angles(arc, 0, 360);
+    lv_obj_remove_style(arc, NULL, LV_PART_KNOB);   /*Be sure the knob is not displayed*/
+    lv_obj_remove_flag(arc, LV_OBJ_FLAG_CLICKABLE);  /*To not allow adjusting by click*/
+    lv_obj_center(arc);
+}
+
+void lv_example_flex_1(void)
+{
+    /*Create a container with ROW flex direction*/
+    lv_obj_t * cont_row_up = lv_obj_create(lv_screen_active());
+	lv_obj_set_style_bg_color(cont_row_up, lv_color_hex(0xCCCCCC), LV_PART_MAIN);
+    lv_obj_set_size(cont_row_up, 320, 60);
+    lv_obj_align(cont_row_up, LV_ALIGN_TOP_MID, 0, -15);
+    //lv_obj_set_flex_flow(cont_row, LV_FLEX_FLOW_ROW);
+
+	/*Create a container with ROW flex direction*/
+    lv_obj_t * cont_row_mid = lv_obj_create(lv_screen_active());
+    lv_obj_set_size(cont_row_mid, 320, 220);
+    lv_obj_align_to(cont_row_mid, cont_row_up, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+
+    ///*Create a container with COLUMN flex direction*/
+    lv_obj_t * cont_col_bot = lv_obj_create(lv_screen_active());
+    lv_obj_set_size(cont_col_bot, 320, 200);
+    lv_obj_align_to(cont_col_bot, cont_row_mid, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_set_flex_flow(cont_col_bot, LV_FLEX_FLOW_COLUMN);
+
+    uint32_t i;
+    for(i = 0; i < 10; i++)
+	{
+        lv_obj_t * obj;
+        lv_obj_t * label;
+
+        /*Add items to the row*/
+        //obj = lv_button_create(cont_row);
+        //lv_obj_set_size(obj, 100, LV_PCT(100));
+        //label = lv_label_create(obj);
+        //lv_label_set_text_fmt(label, "Item: %d", i);
+        //lv_obj_center(label);
+		
+        ///*Add items to the column*/
+        //obj = lv_button_create(cont_col);
+        //lv_obj_set_size(obj, LV_PCT(100), LV_SIZE_CONTENT);
+        //label = lv_label_create(obj);
+        //lv_label_set_text_fmt(label, "Item: %d", i);
+        //lv_obj_center(label);
+    }//
+}
+
+
 void lvCheckGreen(void)
 {
 	lv_obj_t * obj;
@@ -119,7 +174,7 @@ void lvCheckGreen(void)
 	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
 	lv_label_set_text(label, "OK");
 	lv_obj_center(label);	
-	lv_obj_set_pos(obj, 5, 250);
+	lv_obj_set_pos(obj, 5, 270);
 }
 
 void lvCheckGreenLight(void)
@@ -128,7 +183,7 @@ void lvCheckGreenLight(void)
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0xB0BD2F), LV_PART_MAIN);	
 	lv_obj_set_size(obj, 310, 40);
-	lv_obj_set_pos(obj, 5, 295);
+	lv_obj_set_pos(obj, 5, 310);
 }
 
 void lvCheckYellow(void)
@@ -137,7 +192,7 @@ void lvCheckYellow(void)
 	obj = lv_obj_create(lv_screen_active());
 	lv_obj_set_style_bg_color(obj, lv_color_hex(0xFEED00), LV_PART_MAIN);	
 	lv_obj_set_size(obj, 310, 40);
-	lv_obj_set_pos(obj, 5, 340);
+	lv_obj_set_pos(obj, 5, 350);
 }
 
 void lvCheckOrange(void)
@@ -150,7 +205,7 @@ void lvCheckOrange(void)
 	lv_obj_set_style_text_color(label, lv_color_hex(0xffffff), LV_PART_MAIN);
 	lv_label_set_text(label, "!CHECK!");
 	lv_obj_center(label);	
-	lv_obj_set_pos(obj, 5, 385);
+	lv_obj_set_pos(obj, 5, 390);
 }
 
 void lvCheckRed(void)
@@ -197,11 +252,13 @@ void setup()
     disp = lv_tft_espi_create(HOR_RES, VER_RES, draw_buf, sizeof(draw_buf));
     lv_display_set_rotation(disp, TFT_ROTATION);
 
-	lvCheckGreen();
-	lvCheckGreenLight();
-	lvCheckYellow();
-	lvCheckOrange();
-	lvCheckRed();
+	//lvCheckGreen();
+	//lvCheckGreenLight();
+	//lvCheckYellow();
+	//lvCheckOrange();
+	//lvCheckRed();
+	//lv_FenceVoltage();
+	lv_example_flex_1();
 	Serial.println( "Setup done" );
 
 }
