@@ -36,6 +36,14 @@ char item_strings[5][9] = {
     "!CHECK!"
 };
 
+char item_file[5][15] = {
+    "B:/bt.png",
+    "B:/gps.png",
+    "B:/lte.png",
+    "B:/cloud.png",
+    "B:/batt_gr.png"
+};
+
 //static void dummy_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 
 //uint8_t * last_flushed_buf;
@@ -53,50 +61,6 @@ void my_print( lv_log_level_t level, const char * buf )
     Serial.flush();
 }
 #endif
-
-void lv_example_led_1(void)
-{
-    /*Create a LED and switch it OFF*/
-    lv_obj_t * led1  = lv_led_create(lv_screen_active());
-    lv_obj_align(led1, LV_ALIGN_CENTER, -80, 0);
-    lv_led_off(led1);
-
-    /*Copy the previous LED and set a brightness*/
-    lv_obj_t * led2  = lv_led_create(lv_screen_active());
-    lv_obj_align(led2, LV_ALIGN_CENTER, 0, 0);
-    lv_led_set_brightness(led2, 150);
-    lv_led_set_color(led2, lv_palette_main(LV_PALETTE_RED));
-
-    /*Copy the previous LED and switch it ON*/
-    lv_obj_t * led3  = lv_led_create(lv_screen_active());
-    lv_obj_align(led3, LV_ALIGN_CENTER, 80, 0);
-    lv_led_on(led3);
-}
-
-void lv_lable(void)
-{
-	lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x003a57), LV_PART_MAIN);
-    lv_obj_t *label = lv_label_create( lv_screen_active() );
-    lv_label_set_text( label, "Hello Arduino, I'm LVGL!" );
-	lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-}
-
-void lv_example_spinner_1(void)
-{
-    /*Create a spinner*/
-    lv_obj_t * spinner = lv_spinner_create(lv_screen_active());
-    lv_obj_set_size(spinner, 100, 100);
-    lv_obj_center(spinner);
-    lv_spinner_set_anim_params(spinner, 10000, 200);
-}
-
-
-static void set_angle(lv_obj_t  * obj, int32_t v)
-{
-    lv_arc_set_value(obj, v);
-}
-
 
 
 lv_obj_t * SubMainScreen_Status()
@@ -128,14 +92,17 @@ lv_obj_t * SubMainScreen_Status()
 
     for (int i = 0; i<5; i++)
     {
-        lv_obj_t * icon = lv_obj_create(icons_bar);                  
-        lv_obj_set_size(icon, 40, 40);
-        lv_obj_set_style_border_width(icon, 2, LV_PART_MAIN);                       
-        lv_obj_set_style_border_color(icon, lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
-        lv_obj_set_style_bg_color(icon, lv_color_hex(0x5E5E5C), LV_PART_MAIN);//Pozadi podle tabulky       
-        lv_obj_set_style_bg_opa(icon, LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
-        lv_obj_set_style_radius(icon, 10, LV_PART_MAIN);
-        lv_obj_set_style_pad_all(icon, 0, LV_PART_MAIN);
+        lv_obj_t * img = lv_img_create(icons_bar);
+        lv_img_set_src(img, item_file[i]);  // 'S' je označení souborového systému SD v LVGL
+
+        // lv_obj_t * icon = lv_obj_create(icons_bar);                  
+        // lv_obj_set_size(icon, 40, 40);
+        // lv_obj_set_style_border_width(icon, 2, LV_PART_MAIN);                       
+        // lv_obj_set_style_border_color(icon, lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
+        // lv_obj_set_style_bg_color(icon, lv_color_hex(0x5E5E5C), LV_PART_MAIN);//Pozadi podle tabulky       
+        // lv_obj_set_style_bg_opa(icon, LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
+        // lv_obj_set_style_radius(icon, 10, LV_PART_MAIN);
+        // lv_obj_set_style_pad_all(icon, 0, LV_PART_MAIN);
     }
 
     return target;
@@ -377,22 +344,12 @@ lv_obj_t * SubMainScreen_BarGraph(lv_obj_t * dependOn)
 void Main_Screen(void)
 {
     //Obarvit na bílo
-    // lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+    lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xFFFFFF), LV_PART_MAIN);
 
-    // lv_obj_t * contRowStatus        = SubMainScreen_Status();
-    // lv_obj_t * contRowFenceVoltage  = SubMainScreen_FenceVoltage(contRowStatus);
-    // lv_obj_t * contRowTitle         = SubMainScreen_BarGraphTitle(contRowFenceVoltage);
-    // lv_obj_t * contRowBar           = SubMainScreen_BarGraph(contRowTitle);
-
-    if (SPIFFS.exists("/spiffs/a1.png")) {
-        Serial.println("Soubor /a1.png existuje.");
-    } else {
-        Serial.println("Soubor /a1.png neexistuje.");
-    }
-
-    lv_obj_t * img = lv_image_create(lv_screen_active());
-    lv_image_set_src(img, "A:a2.png");
-    lv_obj_center(img);
+    lv_obj_t * contRowStatus        = SubMainScreen_Status();
+    lv_obj_t * contRowFenceVoltage  = SubMainScreen_FenceVoltage(contRowStatus);
+    lv_obj_t * contRowTitle         = SubMainScreen_BarGraphTitle(contRowFenceVoltage);
+    lv_obj_t * contRowBar           = SubMainScreen_BarGraph(contRowTitle);    
 }
 
 
@@ -501,9 +458,12 @@ void setup()
     disp = lv_tft_espi_create(HOR_RES, VER_RES, draw_buf, sizeof(draw_buf));
     lv_display_set_rotation(disp, TFT_ROTATION);
 
+
+  
+
 	//lv_example_flex_1();
     //GreyTitle();
-    //Main_Screen();
+    Main_Screen();
 	Serial.println( "Setup done" );
 
 }
