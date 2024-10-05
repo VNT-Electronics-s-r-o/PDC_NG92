@@ -1,0 +1,4 @@
+bodmer/TFT_eSPI@^2.5.43
+mbed-unix-guru/lodePNG@0.0.0+sha.6b244485c156
+libpng
+lvgl/lvgl@^9.2.0
