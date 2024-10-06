@@ -2,6 +2,8 @@
 #include "lvgl.h"
 #include <SD.h>
 #include <SPI.h>
+#include "Timers.h"
+#include "InputReader.h"
 
 #if LV_USE_TFT_ESPI
 	#include <TFT_eSPI.h>
@@ -468,8 +470,10 @@ void setup()
 
 	//lv_example_flex_1();
     //GreyTitle();
-    Main_Screen();
+    //Main_Screen();
 	Serial.println( "Setup done" );
+    InitTimers();			// Inicializace časovačů
+	InitInputReader();		// Inicializace pro čtení vstupu
 
 }
 
@@ -477,4 +481,7 @@ void loop()
 {
 	lv_timer_handler(); /* let the GUI do its work */
 	//delay(5); /* let this time pass */
+	EvaluateTimers();		// Vyhodnocení časovačů v každém cyklu smyčky
+	EvaluateInput();		// Vyhodnocení stavu vstupu
+	delay(TIMER_BASE);		// Zachování neblokujícího provozu s časovou základnou 10ms
 }
