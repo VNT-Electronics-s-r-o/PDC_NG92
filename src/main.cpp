@@ -1,13 +1,11 @@
 #include <Arduino.h>
-#include "lvgl.h"
+
 #include <SD.h>
 #include <SPI.h>
 #include "Timers.h"
 #include "InputReader.h"
 
-#if LV_USE_TFT_ESPI
-	#include <TFT_eSPI.h>
-#endif
+
 
 
 #define V2_1
@@ -23,11 +21,18 @@ static const uint16_t VER_RES		= 480;
 static lv_style_t style_red_btn;
 static lv_style_t style_btn;
 
+uint8_t GeneratorStatus = 5; // 0 = Zobrazil logo, 1 = Zobrazit hlavni obrazovku radio only, 2 50%, 3 100%
+bool NewValue = false;
+
 #define DRAW_BUF_SIZE (HOR_RES * VER_RES / 10 * (LV_COLOR_DEPTH / 8))
 uint32_t draw_buf[DRAW_BUF_SIZE / 4];
 TFT_eSPI tft = TFT_eSPI(HOR_RES, VER_RES);
 
 uint32_t BarGraph_Color[5] = { 0x41A535, 0xB0BD2F, 0xFEED00, 0xE5610E, 0xCE1719};
+
+
+
+
 
 
 char item_strings[5][9] = {
@@ -73,7 +78,7 @@ lv_obj_t * SubMainScreen_Status()
     lv_obj_set_size(target, 320, 60);
     lv_obj_align(target, LV_ALIGN_TOP_MID, 0, -15);
 
-    lv_obj_set_style_border_width(target, 0, LV_PART_MAIN);  // Nastavení šířky rámečku (2 pixely)
+    lv_obj_set_style_border_width(target, 2, LV_PART_MAIN);  // Nastavení šířky rámečku (2 pixely)
     lv_obj_set_style_border_color(target, lv_color_black(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
     lv_obj_set_style_radius(target, 10, LV_PART_MAIN); //Nastveni zaobleni
     lv_obj_set_style_pad_all(target, 0, LV_PART_MAIN);
@@ -83,7 +88,7 @@ lv_obj_t * SubMainScreen_Status()
     lv_obj_set_size(icons_bar, 300, 40);
     lv_obj_align_to(icons_bar, target, LV_ALIGN_BOTTOM_MID, 0, -3);
     lv_obj_set_style_bg_opa(icons_bar, LV_OPA_TRANSP, LV_PART_MAIN); //Nastaveni pruhlednosti
-    lv_obj_set_style_border_width(icons_bar, 0, LV_PART_MAIN);                       
+    lv_obj_set_style_border_width(icons_bar, 2, LV_PART_MAIN);                       
     lv_obj_set_style_border_color(icons_bar, lv_color_black(), LV_PART_MAIN);        
     lv_obj_set_style_radius(icons_bar, 0, LV_PART_MAIN);
      lv_obj_set_flex_flow(icons_bar, LV_FLEX_FLOW_ROW);
@@ -94,17 +99,17 @@ lv_obj_t * SubMainScreen_Status()
 
     for (int i = 0; i<5; i++)
     {
-        lv_obj_t * img = lv_img_create(icons_bar);
-        lv_img_set_src(img, item_file[i]);  // 'S' je označení souborového systému SD v LVGL
+        //lv_obj_t * img = lv_img_create(icons_bar);
+        //lv_img_set_src(img, item_file[i]);  // 'S' je označení souborového systému SD v LVGL
 
-        // lv_obj_t * icon = lv_obj_create(icons_bar);                  
-        // lv_obj_set_size(icon, 40, 40);
-        // lv_obj_set_style_border_width(icon, 2, LV_PART_MAIN);                       
-        // lv_obj_set_style_border_color(icon, lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
-        // lv_obj_set_style_bg_color(icon, lv_color_hex(0x5E5E5C), LV_PART_MAIN);//Pozadi podle tabulky       
-        // lv_obj_set_style_bg_opa(icon, LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
-        // lv_obj_set_style_radius(icon, 10, LV_PART_MAIN);
-        // lv_obj_set_style_pad_all(icon, 0, LV_PART_MAIN);
+        StatusBar[i] = lv_obj_create(icons_bar);                  
+        lv_obj_set_size(StatusBar[i], 40, 40);
+        lv_obj_set_style_border_width(StatusBar[i], 2, LV_PART_MAIN);                       
+        lv_obj_set_style_border_color(StatusBar[i], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
+        lv_obj_set_style_bg_color(StatusBar[i], lv_color_hex(0x5E5E5C), LV_PART_MAIN);//Pozadi podle tabulky       
+        lv_obj_set_style_bg_opa(StatusBar[i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
+        lv_obj_set_style_radius(StatusBar[i], 10, LV_PART_MAIN);
+        lv_obj_set_style_pad_all(StatusBar[i], 0, LV_PART_MAIN);
     }
 
     return target;
@@ -353,10 +358,13 @@ void Main_Screen(void)
     //Obarvit na bílo
     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xFFFFFF), LV_PART_MAIN);
 
+
+    
+
     lv_obj_t * contRowStatus        = SubMainScreen_Status();
-    lv_obj_t * contRowFenceVoltage  = SubMainScreen_FenceVoltage(contRowStatus);
-    lv_obj_t * contRowTitle         = SubMainScreen_BarGraphTitle(contRowFenceVoltage);
-    lv_obj_t * contRowBar           = SubMainScreen_BarGraph(contRowTitle);    
+    //lv_obj_t * contRowFenceVoltage  = SubMainScreen_FenceVoltage(contRowStatus);
+    //lv_obj_t * contRowTitle         = SubMainScreen_BarGraphTitle(contRowFenceVoltage);
+    //lv_obj_t * contRowBar           = SubMainScreen_BarGraph(contRowTitle);    
 }
 
 
@@ -463,17 +471,14 @@ void setup()
 	lv_display_t * disp;	
     
     disp = lv_tft_espi_create(HOR_RES, VER_RES, draw_buf, sizeof(draw_buf));
-    lv_display_set_rotation(disp, TFT_ROTATION);
-
-
-  
-
+    lv_display_set_rotation(disp, TFT_ROTATION);  
+    
 	//lv_example_flex_1();
     //GreyTitle();
-    //Main_Screen();
+    Main_Screen();
 	Serial.println( "Setup done" );
-    InitTimers();			// Inicializace časovačů
-	InitInputReader();		// Inicializace pro čtení vstupu
+    // InitTimers();			// Inicializace časovačů
+	// InitInputReader();		// Inicializace pro čtení vstupu
 
 }
 
@@ -481,7 +486,30 @@ void loop()
 {
 	lv_timer_handler(); /* let the GUI do its work */
 	//delay(5); /* let this time pass */
-	EvaluateTimers();		// Vyhodnocení časovačů v každém cyklu smyčky
-	EvaluateInput();		// Vyhodnocení stavu vstupu
-	delay(TIMER_BASE);		// Zachování neblokujícího provozu s časovou základnou 10ms
+	// EvaluateTimers();		// Vyhodnocení časovačů v každém cyklu smyčky	
+    // if(GeneratorStatus != EvaluateInput())
+    // {
+    //     GeneratorStatus = EvaluateInput();  
+    //     NewValue = true;            
+    // }
+    // else if (NewValue == true)
+    // {
+    //     switch(GeneratorStatus)
+    //     {
+    //         case 0:
+    //             Serial.println("Generator OFF");
+    //             break;
+    //         case 1:
+    //             Serial.println("Generator Radio Only");
+    //             break;
+    //         case 2:
+    //             Serial.println("Generator 50%");
+    //             break;
+    //         case 3:
+    //             Serial.println("Generator 100%");
+    //             break;
+    //     }
+    //     NewValue = false;
+    // }    
+    delay(TIMER_BASE);		// Zachování neblokujícího provozu s časovou základnou 10ms
 }

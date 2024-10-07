@@ -8,17 +8,17 @@ Timer Timer3 = {0, false}; // Timer s intervalem 10000ms a bez opakování (jedn
 // Callbacky pro jednotlivé časovače
 void _timer1Callback()
 {
-	Serial.println("Timer1 - 100ms interval");
+	//Serial.println("Timer1 - 100ms interval");
 }
 
 void _timer2Callback()
 {
-	Serial.println("Timer2 - 1000ms interval");
+	//Serial.println("Timer2 - 1000ms interval");
 }
 
 void _timer3Callback()
 {
-	Serial.println("Timer3 - 10000ms jednorázový");
+	//Serial.println("Timer3 - 10000ms jednorázový");
 }
 
 // Inicializační funkce (pokud by bylo potřeba časem přidávat další konfigurace)

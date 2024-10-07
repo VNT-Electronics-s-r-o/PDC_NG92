@@ -16,6 +16,7 @@ unsigned long lastChangeTime = 0;  // Poslední čas změny stavu
 unsigned long lastCheckTime = 0;   // Poslední čas kontroly
 bool lastState = LOW;              // Poslední čtený stav vstupu
 bool isStable = true;              // Stav, zda je signál stabilní
+uint8_t temporaryState = 0;        // Pomocná proměnná pro uložení stavu
 
 // Funkce pro inicializaci
 void InitInputReader()
@@ -24,7 +25,7 @@ void InitInputReader()
 }
 
 // Funkce pro vyhodnocení vstupu (základní smyčka)
-void EvaluateInput()
+uint8_t EvaluateInput()
 {
 	// Periodické čtení vstupu každých 100ms
 	unsigned long currentMillis = millis();
@@ -36,31 +37,37 @@ void EvaluateInput()
 
 		// Pokud došlo ke změně stavu
 		if (currentState != lastState)
-		{
+		{	
+			
 			unsigned long period = currentMillis - lastChangeTime;  // Výpočet periody mezi změnami
 			lastChangeTime = currentMillis;  // Aktualizace času změny stavu
 			lastState = currentState;        // Uložení nového stavu
-
-			// Vyhodnocení blikání (50% střída)
-			if (period >= 900 && period <= 1100)
+			if(currentState == 0)
 			{
-				Serial.println("50% střída s periodou 1 sekunda");
-				isStable = false;
-			}
-			else if (period >= 3900 && period <= 4100)
-			{
-				Serial.println("50% střída s periodou 4 sekundy");
-				isStable = false;
-			}
-			else
-			{
-				isStable = true;  // Pokud není perioda odpovídající blikání, nastavíme stav jako stabilní
-			}
+				//Serial.printf("Perioda: %d\n", period);
+				if( period < 800)
+				{
+					temporaryState = 2;
+				}
+				else if (period < 1200)
+				{
+					temporaryState = 3;
+				}
+			}			
 		}
 		// Kontrola, zda je signál stabilní
 		if (isStable && (currentMillis - lastChangeTime > STABLE_THRESHOLD))
 		{
-			Serial.println("Stabilní signál (logická 1)");
+			//Serial.printf("Stabilní signál (%d)\n",currentState);
+			if(currentState == 1)
+			{
+				temporaryState = 0;
+			}
+			else
+			{
+				temporaryState = 1;
+			}
 		}
 	}
+	return temporaryState;
 }
