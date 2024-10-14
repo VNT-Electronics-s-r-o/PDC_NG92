@@ -1,4 +1,6 @@
 #include "lvgl.h"
+#include <SPI.h>
+
 #if LV_USE_TFT_ESPI
 	#include <TFT_eSPI.h>
 #endif
@@ -62,6 +64,56 @@ void G_Grafika_Init()
     
     disp = lv_tft_espi_create(HOR_RES, VER_RES, draw_buf, sizeof(draw_buf));
     lv_display_set_rotation(disp, TFT_ROTATION);  
+    
+   
+	//lv_example_flex_1();
+    //GreyTitle();    
+	Serial.println( "Setup done" );
+}
+
+lv_obj_t * SubMainScreen_Status()
+{
+    lv_obj_t * target = lv_obj_create(lv_screen_active());
+    //Status lista
+	lv_obj_set_style_bg_color(target, lv_color_hex(0xCCCCCC), LV_PART_MAIN);
+    lv_obj_set_size(target, 320, 60);
+    lv_obj_align(target, LV_ALIGN_TOP_MID, 0, -15);
+
+    lv_obj_set_style_border_width(target, 2, LV_PART_MAIN);  // Nastavení šířky rámečku (2 pixely)
+    lv_obj_set_style_border_color(target, lv_color_black(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
+    lv_obj_set_style_radius(target, 10, LV_PART_MAIN); //Nastveni zaobleni
+    lv_obj_set_style_pad_all(target, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(target, 0, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
+
+    lv_obj_t * icons_bar = lv_obj_create(target);     
+    lv_obj_set_size(icons_bar, 300, 40);
+    lv_obj_align_to(icons_bar, target, LV_ALIGN_BOTTOM_MID, 0, -3);
+    lv_obj_set_style_bg_opa(icons_bar, LV_OPA_TRANSP, LV_PART_MAIN); //Nastaveni pruhlednosti
+    lv_obj_set_style_border_width(icons_bar, 2, LV_PART_MAIN);                       
+    lv_obj_set_style_border_color(icons_bar, lv_color_black(), LV_PART_MAIN);        
+    lv_obj_set_style_radius(icons_bar, 0, LV_PART_MAIN);
+     lv_obj_set_flex_flow(icons_bar, LV_FLEX_FLOW_ROW);
+    //lv_obj_set_flex_align(cont_col_bot, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_flex_align(icons_bar, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_all(icons_bar, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_column(icons_bar, 24, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
+
+    // for (int i = 0; i<5; i++)
+    // {
+    //     //lv_obj_t * img = lv_img_create(icons_bar);
+    //     //lv_img_set_src(img, item_file[i]);  // 'S' je označení souborového systému SD v LVGL
+
+    //     StatusBar[i] = lv_obj_create(icons_bar);                  
+    //     lv_obj_set_size(StatusBar[i], 40, 40);
+    //     lv_obj_set_style_border_width(StatusBar[i], 2, LV_PART_MAIN);                       
+    //     lv_obj_set_style_border_color(StatusBar[i], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
+    //     lv_obj_set_style_bg_color(StatusBar[i], lv_color_hex(0x5E5E5C), LV_PART_MAIN);//Pozadi podle tabulky       
+    //     lv_obj_set_style_bg_opa(StatusBar[i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
+    //     lv_obj_set_style_radius(StatusBar[i], 10, LV_PART_MAIN);
+    //     lv_obj_set_style_pad_all(StatusBar[i], 0, LV_PART_MAIN);
+    // }
+
+    return target;
 }
 
 void G_MainBackground()
@@ -70,6 +122,7 @@ void G_MainBackground()
     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xFFFFFF), LV_PART_MAIN);
 
 
+    lv_obj_t * contRowStatus        = SubMainScreen_Status();
 }
 
 

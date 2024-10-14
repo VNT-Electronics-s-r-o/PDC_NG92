@@ -482,5 +482,5 @@ void loop()
     //     }
     //     NewValue = false;
     // }    
-    delay(TIMER_BASE);		// Zachování neblokujícího provozu s časovou základnou 10ms
+    //delay(TIMER_BASE);		// Zachování neblokujícího provozu s časovou základnou 10ms
 }
