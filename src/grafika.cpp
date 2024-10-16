@@ -316,17 +316,22 @@ void G_Template_FenceeVoltage()
 	lv_obj_set_style_pad_row(InfoLabelTemplate_Objects[eIL_SIGNAL_AREA], 0, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
 
     //Baterie icon
-    InfoLabelTemplate_Objects[eIL_BATERIE_ICO] = lv_obj_create(InfoLabelTemplate_Objects[eIL_BATTERY_AREA]);
-    lv_obj_set_size(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 40, 40); 
-    lv_obj_align_to(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], InfoLabelTemplate_Objects[eIL_BATTERY_AREA], LV_ALIGN_TOP_MID, 0, 0);
-    lv_obj_set_style_border_width(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
-    lv_obj_set_style_border_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
-	if(HELP_BORDER_WIDTH != 0)
-	{
-		lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky       
-	}
-    lv_obj_set_style_pad_all(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 0, LV_PART_MAIN);
-    lv_obj_set_style_radius(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 20, LV_PART_MAIN);
+	lv_obj_t * img_bat = lv_img_create(InfoLabelTemplate_Objects[eIL_BATERIE_ICO]);		
+    lv_img_set_src(img_bat, "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
+
+
+    InfoLabelTemplate_Objects[eIL_BATERIE_ICO] = lv_img_create(InfoLabelTemplate_Objects[eIL_BATTERY_AREA]);
+	lv_img_set_src(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
+    // lv_obj_set_size(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 40, 40); 
+    // lv_obj_align_to(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], InfoLabelTemplate_Objects[eIL_BATTERY_AREA], LV_ALIGN_TOP_MID, 0, 0);
+    // lv_obj_set_style_border_width(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
+    // lv_obj_set_style_border_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
+	// if(HELP_BORDER_WIDTH != 0)
+	// {
+	// 	lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky       
+	// }
+    // lv_obj_set_style_pad_all(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 0, LV_PART_MAIN);
+    // lv_obj_set_style_radius(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 20, LV_PART_MAIN);
 	
     //Signal icon
     InfoLabelTemplate_Objects[eIL_SIGNAL_ICO] = lv_obj_create(InfoLabelTemplate_Objects[eIL_SIGNAL_AREA]);
@@ -542,9 +547,7 @@ void G_Update_BarGraph(int led)
 
 void G_Add_Static_Icon()
 {
-	//lv_obj_t * img_bat = lv_img_create(InfoLabelTemplate_Objects[eIL_BATERIE_ICO]);	
-	lv_obj_t * img_bat = lv_img_create(lv_screen_active());	
-    lv_img_set_src(img_bat, "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
+
 }
 
 
