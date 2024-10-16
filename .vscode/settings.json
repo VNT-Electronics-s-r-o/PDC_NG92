@@ -1,5 +1,15 @@
 {
 	"files.associations": {
-		"functional": "cpp"
+		"functional": "cpp",
+		"condition_variable": "cpp",
+		"cstddef": "cpp",
+		"list": "cpp",
+		"string": "cpp",
+		"optional": "cpp",
+		"limits": "cpp",
+		"memory": "cpp",
+		"new": "cpp",
+		"regex": "cpp",
+		"type_traits": "cpp"
 	}
 }
