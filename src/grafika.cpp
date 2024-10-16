@@ -11,7 +11,7 @@
 
 #define V2_1
 #define TFT_LED 33
-#define SD_CS_PIN 4
+
 #define TFT_ROTATION  LV_DISPLAY_ROTATION_180
 #define NUM_OBJECTS 20
 #define NUM_ICON    5
@@ -118,6 +118,7 @@ void 		G_Template_FenceeVoltage();
 void		G_Insert_Text();
 void		G_Template_BarTitle();
 void		G_Template_BarGraph();
+
 /*************************
     F U N C T I O N S
 *************************/
@@ -343,7 +344,7 @@ void G_Template_FenceeVoltage()
     lv_arc_set_rotation(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 245);
     lv_arc_set_bg_angles(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 0, 360);
     lv_arc_set_start_angle(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 0);
-    lv_arc_set_value(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 50);  // Nastaví hodnotu na 50
+    lv_arc_set_value(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 80);  // Nastaví hodnotu na 50
 //     // lv_obj_remove_style(arc, NULL, LV_PART_KNOB);   /*Be sure the knob is not displayed*/
 //     // lv_obj_remove_flag(arc, LV_OBJ_FLAG_CLICKABLE);  /*To not allow adjusting by click*/
     lv_obj_center(InfoLabelTemplate_Objects[eIL_ARC_FENCE]);
@@ -421,7 +422,6 @@ void G_Insert_Text()
 	lv_label_set_text(BarGraphTitle_Teplate_Objects[eBGT_TITLE], 				" ");
 }
 
-
 void G_Template_BarTitle()
 {
 	BarGraphTitle_Teplate_Objects[eBGT_TITLE] = lv_label_create(MainTemplate_Objects[eBARGRAPH_TITLE_AREA]);	
@@ -436,7 +436,7 @@ void G_Template_BarGraph()
 	for(i = 0; i < 5; i++)
 	{		
 		BarGraph_Teplate_Objects[i] = lv_label_create(MainTemplate_Objects[eBARGRAPH_AREA]);
-		lv_label_set_text_fmt(BarGraph_Teplate_Objects[i], "%s", item_strings[i]); //Vlozeni fotmatovaneho textu
+		
 		//lv_obj_set_style_bg_color(label, lv_color_hex(BarGraph_Color[i]), LV_PART_MAIN);//Pozadi podle tabulky
 		lv_obj_set_style_bg_opa(BarGraph_Teplate_Objects[i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
 		lv_obj_set_style_text_color(BarGraph_Teplate_Objects[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN);  // Barva písma bílá
@@ -450,8 +450,58 @@ void G_Template_BarGraph()
 	}	
 }
 
+void G_Update_FenceVaule(int value)
+{
+	int helpPercernt = 0;
+
+	helpPercernt = value*100/110;
+	Serial.println(helpPercernt);
+	//lv_label_set_text(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%f", (float)value/10);
+	lv_label_set_text_fmt(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%d.%d", value/10, value%10);
+	lv_arc_set_value(InfoLabelTemplate_Objects[eIL_ARC_FENCE],helpPercernt);
+	
+	G_Update_BarGraph(value);
+	
+}
 
 
+void G_Update_BarGraph(int value)
+{	
+	int led = 0;
+	if(value<30)led = 4;	
+	else if(value<50)led = 3;
+	else if(value<70)led = 2;
+	else if(value<90)led = 1;
+	else led = 0;
+
+	for(int i=0;i<5;i++)
+	{
+		lv_label_set_text(BarGraph_Teplate_Objects[i], ""); //Vlozeni fotmatovaneho textu
+		if(i>=led)
+		{
+			lv_obj_set_style_bg_color(BarGraph_Teplate_Objects[i], lv_color_hex(BarGraph_Color[i]), LV_PART_MAIN);//Pozadi podle tabulky			
+		}		
+		else
+		{
+			lv_obj_set_style_bg_color(BarGraph_Teplate_Objects[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN);//Pozadi podle tabulky
+		}
+	}
+
+	switch(led)
+	{
+		case 4:
+			lv_label_set_text_fmt(BarGraph_Teplate_Objects[4], "%s", item_strings[4]); //Vlozeni fotmatovaneho textu
+			break;
+		case 3:
+			lv_label_set_text_fmt(BarGraph_Teplate_Objects[3], "%s", item_strings[3]); //Vlozeni fotmatovaneho textu
+			break;
+		case 0:
+			lv_label_set_text_fmt(BarGraph_Teplate_Objects[0], "%s", item_strings[0]); //Vlozeni fotmatovaneho textu
+			break;
+		default:
+			break;
+	}
+}
 //Zbytek FENCEE AREY    
 						//     lv_obj_t * img_bat = lv_img_create(info_bat);
 						//     lv_img_set_src(img_bat, "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
