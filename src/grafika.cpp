@@ -16,7 +16,7 @@
 #define NUM_OBJECTS 20
 #define NUM_ICON    5
 
-#define HELP_BORDER_WIDTH 1
+#define HELP_BORDER_WIDTH 0
 
 
 enum {
@@ -75,6 +75,7 @@ lv_obj_t * StatusBarTemplate_Objects[NUM_ICON];  // Pole pro uložení referenc�
 lv_obj_t * BarGraphTitle_Teplate_Objects[NUM_OBJECTS];
 lv_obj_t * BarGraph_Teplate_Objects[NUM_OBJECTS];
 lv_obj_t * InfoLabelTemplate_Objects[NUM_ICON];  // Pole pro uložení referencí na 20 objektů
+lv_anim_t ArcAnim;
 
 
 char item_strings[5][9] = {
@@ -118,6 +119,9 @@ void 		G_Template_FenceeVoltage();
 void		G_Insert_Text();
 void		G_Template_BarTitle();
 void		G_Template_BarGraph();
+void 		G_Update_BarGraph(int led);
+void		G_Anime_Arc(int percent, int value);
+void		G_Add_Static_Icon();
 
 /*************************
     F U N C T I O N S
@@ -125,6 +129,11 @@ void		G_Template_BarGraph();
 static uint32_t my_tick(void)
 {
     return millis();
+}
+
+static void arc_anim_callback(void * obj, int32_t value)
+{
+    lv_arc_set_value((lv_obj_t *)obj, value);
 }
 
 void G_Grafika_Init()
@@ -150,15 +159,14 @@ void G_Grafika_Init()
 //#if LV_USE_LOG != 0
     //lv_log_register_print_cb( my_print );
 //#endif
-
+	
     G_MainBackground();
 	G_Template_StatusBar();
 	G_Template_FenceeVoltage();
 	G_Template_BarTitle();
 	G_Template_BarGraph();
-
-
 	G_Insert_Text();
+	G_Add_Static_Icon();
 }
 
 void G_MainBackground()
@@ -166,8 +174,12 @@ void G_MainBackground()
 	//Obarvit na bílo
 	lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xFFFFFF), LV_PART_MAIN);   
 	//Status lista
-	MainTemplate_Objects[eSTATUSBAR_AREA] = lv_obj_create(lv_screen_active());	
-	//lv_obj_set_style_bg_color(Template_Objects[0], lv_color_hex(0xCCCCCC), LV_PART_MAIN);
+	MainTemplate_Objects[eSTATUSBAR_AREA] = lv_obj_create(lv_screen_active());
+	if(HELP_BORDER_WIDTH == 0)
+	{
+		lv_obj_set_style_bg_color(MainTemplate_Objects[eSTATUSBAR_AREA], lv_color_hex(0xCCCCCC), LV_PART_MAIN);
+	}
+	
 	lv_obj_set_size(MainTemplate_Objects[eSTATUSBAR_AREA], 320, 60);
 	lv_obj_align(MainTemplate_Objects[eSTATUSBAR_AREA], LV_ALIGN_TOP_MID, 0, -15);
 
@@ -187,7 +199,10 @@ void G_MainBackground()
 
 	//BarGraph Title
 	MainTemplate_Objects[eBARGRAPH_TITLE_AREA] = lv_obj_create(lv_screen_active());
-	//lv_obj_set_style_bg_color(MainTemplate_Objects[eBARGRAPH_TITLE], lv_color_hex(0xCCCCCC), LV_PART_MAIN);        
+	if(HELP_BORDER_WIDTH == 0)
+	{
+		lv_obj_set_style_bg_color(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], lv_color_hex(0xCCCCCC), LV_PART_MAIN);        
+	}
 	lv_obj_set_style_pad_all(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], 2, LV_PART_MAIN);
 	lv_obj_set_size(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], 320, 30);
 	lv_obj_set_style_border_width(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], HELP_BORDER_WIDTH, LV_PART_MAIN);							// Nastavení šířky rámečku (2 pixely)
@@ -209,15 +224,20 @@ void G_MainBackground()
 	lv_obj_set_style_radius(MainTemplate_Objects[eBARGRAPH_AREA], 0, LV_PART_MAIN);
 	lv_obj_set_style_pad_row(MainTemplate_Objects[eBARGRAPH_AREA], 2, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
 	lv_obj_set_style_border_width(MainTemplate_Objects[eBARGRAPH_AREA], 5, LV_PART_MAIN);  // Nastavení šířky rámečku (2 pixely)
-	//lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_AREA], lv_color_white(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
-	lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_AREA], lv_color_black(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
+	if(HELP_BORDER_WIDTH == 0)
+	{
+		lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_AREA], lv_color_white(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
+	}
+	else
+	{
+		lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_AREA], lv_color_black(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
+	}
+	
 	lv_obj_set_style_radius(MainTemplate_Objects[eBARGRAPH_AREA], 10, LV_PART_MAIN); //Nastveni zaobleni    
 }
 
 void G_Create_Template()
-{
-	
-	
+{	
 	//G_Insert_Text();
 	//G_Template_BarTitle();
 }
@@ -301,7 +321,10 @@ void G_Template_FenceeVoltage()
     lv_obj_align_to(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], InfoLabelTemplate_Objects[eIL_BATTERY_AREA], LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_set_style_border_width(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
     lv_obj_set_style_border_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
-    //lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky       
+	if(HELP_BORDER_WIDTH != 0)
+	{
+		lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky       
+	}
     lv_obj_set_style_pad_all(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 0, LV_PART_MAIN);
     lv_obj_set_style_radius(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 20, LV_PART_MAIN);
 	
@@ -311,7 +334,10 @@ void G_Template_FenceeVoltage()
     lv_obj_align_to(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], InfoLabelTemplate_Objects[eIL_SIGNAL_AREA], LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_set_style_border_width(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
     lv_obj_set_style_border_color(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);
-    //lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky
+	if(HELP_BORDER_WIDTH != 0)
+	{
+    	lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky
+	}
     lv_obj_set_style_pad_all(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], 0, LV_PART_MAIN);
     lv_obj_set_style_radius(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO], 20, LV_PART_MAIN);
 
@@ -349,6 +375,13 @@ void G_Template_FenceeVoltage()
 //     // lv_obj_remove_flag(arc, LV_OBJ_FLAG_CLICKABLE);  /*To not allow adjusting by click*/
     lv_obj_center(InfoLabelTemplate_Objects[eIL_ARC_FENCE]);
 
+	
+    lv_anim_init(&ArcAnim);
+    lv_anim_set_var(&ArcAnim, InfoLabelTemplate_Objects[eIL_ARC_FENCE]);                           // Přiřadí objekt k animaci
+    lv_anim_set_exec_cb(&ArcAnim, arc_anim_callback);         // Nastaví callback pro animaci
+    lv_anim_set_values(&ArcAnim, 0, 0);                     // Hodnoty od 0 do 100
+    lv_anim_set_time(&ArcAnim, 1000);                         // Doba trvání animace (v ms)
+    lv_anim_start(&ArcAnim);
 
 	//FenceValue  BIG
     InfoLabelTemplate_Objects[eIL_FENCE_VALUE_AREA] = lv_obj_create(MainTemplate_Objects[eFENCE_INDICATOR_AREA]);
@@ -414,12 +447,11 @@ void G_Template_FenceeVoltage()
 
 void G_Insert_Text()
 {
-	lv_label_set_text(InfoLabelTemplate_Objects[eIL_TYPE_TEXT_LABEL],		" ");
-	lv_label_set_text(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		" ");
-	lv_label_set_text(InfoLabelTemplate_Objects[eIL_UNIT_TEXT_LABEL],		" ");
-	lv_label_set_text(InfoLabelTemplate_Objects[eIL_BATTERY_TEXT_LABEL],	" ");
-	lv_label_set_text(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 	" ");
-	lv_label_set_text(BarGraphTitle_Teplate_Objects[eBGT_TITLE], 				" ");
+	lv_label_set_text(InfoLabelTemplate_Objects[eIL_TYPE_TEXT_LABEL],		"OUTPUT POWER");	
+	lv_label_set_text(InfoLabelTemplate_Objects[eIL_UNIT_TEXT_LABEL],		"kV");
+	lv_label_set_text(InfoLabelTemplate_Objects[eIL_BATTERY_TEXT_LABEL],	"12,1");
+	lv_label_set_text(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 	"85%");
+	lv_label_set_text(BarGraphTitle_Teplate_Objects[eBGT_TITLE], 			"OUTPUT POWER");
 }
 
 void G_Template_BarTitle()
@@ -436,8 +468,6 @@ void G_Template_BarGraph()
 	for(i = 0; i < 5; i++)
 	{		
 		BarGraph_Teplate_Objects[i] = lv_label_create(MainTemplate_Objects[eBARGRAPH_AREA]);
-		
-		//lv_obj_set_style_bg_color(label, lv_color_hex(BarGraph_Color[i]), LV_PART_MAIN);//Pozadi podle tabulky
 		lv_obj_set_style_bg_opa(BarGraph_Teplate_Objects[i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
 		lv_obj_set_style_text_color(BarGraph_Teplate_Objects[i], lv_color_hex(0xFFFFFF), LV_PART_MAIN);  // Barva písma bílá
 		lv_obj_align(BarGraph_Teplate_Objects[i],  LV_ALIGN_CENTER, 0, 0);
@@ -453,27 +483,34 @@ void G_Template_BarGraph()
 void G_Update_FenceVaule(int value)
 {
 	int helpPercernt = 0;
-
-	helpPercernt = value*100/110;
-	Serial.println(helpPercernt);
-	//lv_label_set_text(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%f", (float)value/10);
-	lv_label_set_text_fmt(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%d.%d", value/10, value%10);
-	lv_arc_set_value(InfoLabelTemplate_Objects[eIL_ARC_FENCE],helpPercernt);
-	
-	G_Update_BarGraph(value);
-	
-}
-
-
-void G_Update_BarGraph(int value)
-{	
 	int led = 0;
+	//Nastaveni LED
 	if(value<30)led = 4;	
 	else if(value<50)led = 3;
 	else if(value<70)led = 2;
 	else if(value<90)led = 1;
-	else led = 0;
+	else led = 0;	
 
+	helpPercernt = value*100/110;
+	Serial.println(helpPercernt);	
+	lv_label_set_text_fmt(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%d.%d", value/10, value%10);
+	lv_arc_set_value(InfoLabelTemplate_Objects[eIL_ARC_FENCE],helpPercernt);
+	G_Update_BarGraph(led);
+	G_Anime_Arc(helpPercernt, led);
+	
+}
+
+void G_Anime_Arc(int percent, int value)
+{
+	Serial.println(value);
+	lv_obj_set_style_arc_color(InfoLabelTemplate_Objects[eIL_ARC_FENCE], lv_color_hex(BarGraph_Color[value]), LV_PART_INDICATOR);  // Nastavení barvy indikátoru (zelená)	
+	lv_anim_set_time(&ArcAnim, 1000);  
+    lv_anim_set_values(&ArcAnim, 0, percent);                     // Hodnoty od 0 do 100
+    lv_anim_start(&ArcAnim);
+}
+
+void G_Update_BarGraph(int led)
+{	
 	for(int i=0;i<5;i++)
 	{
 		lv_label_set_text(BarGraph_Teplate_Objects[i], ""); //Vlozeni fotmatovaneho textu
@@ -502,6 +539,16 @@ void G_Update_BarGraph(int value)
 			break;
 	}
 }
+
+void G_Add_Static_Icon()
+{
+	//lv_obj_t * img_bat = lv_img_create(InfoLabelTemplate_Objects[eIL_BATERIE_ICO]);	
+	lv_obj_t * img_bat = lv_img_create(lv_screen_active());	
+    lv_img_set_src(img_bat, "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
+}
+
+
+
 //Zbytek FENCEE AREY    
 						//     lv_obj_t * img_bat = lv_img_create(info_bat);
 						//     lv_img_set_src(img_bat, "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL

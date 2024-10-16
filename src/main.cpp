@@ -91,7 +91,7 @@ void setup()
 {
 	Serial.begin(115200);
 	while(!Serial){};
-     randomSeed(analogRead(0));  // Pro lepší náhodnost, čte se hodnota z nepřipojeného analogového pinu
+    randomSeed(analogRead(0));  // Pro lepší náhodnost, čte se hodnota z nepřipojeného analogového pinu
 
     // if(!SPIFFS.begin(true)){
     //     Serial.println("SPIFFS mount failed");
@@ -99,20 +99,12 @@ void setup()
     // }
     // Serial.println("SPIFFS mount successful");
 
+    SD_Test_Init();    
     G_Grafika_Init();
-	
-
-
-
-
-	
-	//tft.begin();		/*TFT Init*/
-	//tft.setRotation(3);	/*TFT Rotation*/
-
     InitTimers();			// Inicializace časovačů
 	
     
-    //SD_Test_Init();    
+    
 	Serial.println( "Setup done" );
 
 }
