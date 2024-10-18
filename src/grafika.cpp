@@ -14,9 +14,11 @@
 
 #define TFT_ROTATION  LV_DISPLAY_ROTATION_180
 #define NUM_OBJECTS 20
-#define NUM_ICON    5
+#define NUM_ICON    6
 
 #define HELP_BORDER_WIDTH 0
+
+#define	BARGRAPH 1
 
 
 enum {
@@ -164,7 +166,10 @@ void G_Grafika_Init()
 	G_Template_StatusBar();
 	G_Template_FenceeVoltage();
 	G_Template_BarTitle();
-	G_Template_BarGraph();
+	if(BARGRAPH == 1)
+	{
+		G_Template_BarGraph();
+	}	
 	G_Insert_Text();
 	G_Add_Static_Icon();
 }
@@ -371,7 +376,7 @@ void G_Template_FenceeVoltage()
     lv_obj_set_size(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 200, 200);                             // Nastaví velikost oblouku na 150x150 px
 //     //lv_obj_set_style_arc_width(arc, 15, LV_PART_MAIN);          // Nastaví šířku čáry na 10 px
 //     //lv_obj_set_style_arc_width(arc, 25, LV_PART_INDICATOR);  // Šířka indikátoru na 15 px
-    lv_obj_set_style_arc_color(InfoLabelTemplate_Objects[eIL_ARC_FENCE], lv_color_hex(0xB2B92D), LV_PART_INDICATOR);  // Nastavení barvy indikátoru (zelená)
+    lv_obj_set_style_arc_color(InfoLabelTemplate_Objects[eIL_ARC_FENCE], lv_color_hex(BarGraph_Color[4]), LV_PART_INDICATOR);  // Nastavení barvy indikátoru (zelená)
     lv_arc_set_rotation(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 245);
     lv_arc_set_bg_angles(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 0, 360);
     lv_arc_set_start_angle(InfoLabelTemplate_Objects[eIL_ARC_FENCE], 0);
@@ -470,7 +475,7 @@ void G_Template_BarTitle()
 void G_Template_BarGraph()
 {
 	uint32_t i;
-	for(i = 0; i < 5; i++)
+	for(i = 0; i < 3; i++)
 	{		
 		BarGraph_Teplate_Objects[i] = lv_label_create(MainTemplate_Objects[eBARGRAPH_AREA]);
 		lv_obj_set_style_bg_opa(BarGraph_Teplate_Objects[i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
@@ -500,7 +505,10 @@ void G_Update_FenceVaule(int value)
 	Serial.println(helpPercernt);	
 	lv_label_set_text_fmt(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%d.%d", value/10, value%10);
 	lv_arc_set_value(InfoLabelTemplate_Objects[eIL_ARC_FENCE],helpPercernt);
-	G_Update_BarGraph(led);
+	if(BARGRAPH == 1)
+	{
+		//G_Update_BarGraph(led);
+	}	
 	G_Anime_Arc(helpPercernt, led);
 	
 }

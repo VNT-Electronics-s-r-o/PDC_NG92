@@ -113,5 +113,5 @@ void loop()
 {
 	lv_timer_handler(); /* let the GUI do its work */
     EvaluateTimers();		// Vyhodnocení časovačů v každém cyklu smyčky	
-	//delay(5); /* let this time pass */
+	delay(15); /* let this time pass */
 }
