@@ -8,14 +8,7 @@
 #define SD_CS_PIN 4
 
 
-#if LV_USE_LOG != 0
-void my_print( lv_log_level_t level, const char * buf )
-{
-    LV_UNUSED(level);
-    Serial.println(buf);
-    Serial.flush();
-}
-#endif
+
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
     Serial.printf("Výpis složky: %s\n", dirname);

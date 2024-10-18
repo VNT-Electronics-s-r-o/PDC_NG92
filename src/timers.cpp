@@ -17,7 +17,7 @@ void _timer2Callback()
 	Serial.println("Timer2 - 1000ms interval");
     int randomInt = random(10, 110);  // Vrací náhodné číslo mezi 101 a 109 (včetně 109)
   
-    G_Update_FenceVaule(randomInt);
+    //G_Update_FenceVaule(randomInt);
     // Převod na rozsah 10.1 - 10.9
     float randomFloat = randomInt / 10.0;
   

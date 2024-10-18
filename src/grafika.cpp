@@ -2,12 +2,12 @@
 #include <Arduino.h>
 #include "lvgl.h"
 
-// #include <SD.h>
-// #include <SPI.h>
+#include <SD.h>
+#include <SPI.h>
 
-// #if LV_USE_TFT_ESPI
-// #include <TFT_eSPI.h>
-// #endif
+#if LV_USE_TFT_ESPI
+	#include <TFT_eSPI.h>
+#endif
 
 #define V2_1
 #define TFT_LED 33
@@ -16,7 +16,7 @@
 #define NUM_OBJECTS 20
 #define NUM_ICON    6
 
-#define HELP_BORDER_WIDTH 0
+#define HELP_BORDER_WIDTH 1
 
 #define	BARGRAPH 1
 
@@ -26,8 +26,6 @@ enum {
 	eFENCE_INDICATOR_AREA,
 	eBARGRAPH_TITLE_AREA,
 	eBARGRAPH_AREA,
-	// eFENCE_VOLTAGE_AREA = 2,
-	// eINFO_LABEL = 3,
 	
 }MainTemplateObject_e;
 
@@ -105,18 +103,18 @@ char item_file[5][15] = {
 //     return millis();
 // }
 
-// #if LV_USE_LOG != 0
-// void my_print( lv_log_level_t level, const char * buf )
-// {
-//     LV_UNUSED(level);
-//     Serial.println(buf);
-//     Serial.flush();
-// }
-// #endif
+#if LV_USE_LOG != 0
+void my_print( lv_log_level_t level, const char * buf )
+{
+    LV_UNUSED(level);
+    Serial.println(buf);
+    Serial.flush();
+}
+#endif
 
 lv_obj_t *  SubMainScreen_Status();
 void        G_Create_Template();
-void 		G_Template_StatusBar ();
+
 void 		G_Template_FenceeVoltage();
 void		G_Insert_Text();
 void		G_Template_BarTitle();
@@ -124,6 +122,8 @@ void		G_Template_BarGraph();
 void 		G_Update_BarGraph(int led);
 void		G_Anime_Arc(int percent, int value);
 void		G_Add_Static_Icon();
+
+void		G_Template_StatusBar (lv_obj_t *  parent);
 
 /*************************
     F U N C T I O N S
@@ -158,87 +158,96 @@ void G_Grafika_Init()
     disp = lv_tft_espi_create(HOR_RES, VER_RES, draw_buf, sizeof(draw_buf));
     lv_display_set_rotation(disp, TFT_ROTATION);
 
-//#if LV_USE_LOG != 0
-    //lv_log_register_print_cb( my_print );
-//#endif
+#if LV_USE_LOG != 0
+    lv_log_register_print_cb( my_print );
+#endif
 	
     G_MainBackground();
-	G_Template_StatusBar();
-	G_Template_FenceeVoltage();
-	G_Template_BarTitle();
-	if(BARGRAPH == 1)
-	{
-		G_Template_BarGraph();
-	}	
-	G_Insert_Text();
-	G_Add_Static_Icon();
+	// G_Template_StatusBar();
+	// G_Template_FenceeVoltage();
+	// G_Template_BarTitle();
+	// if(BARGRAPH == 1)
+	// {
+	// 	G_Template_BarGraph();
+	// }	
+	// G_Insert_Text();
+	// G_Add_Static_Icon();
 }
+
+
 
 void G_MainBackground()
 {
+	lv_obj_t *  Page1;
+	lv_obj_t *  tempObject_1;
+	lv_obj_t *  tempObject_2;
+	lv_obj_t *  tempObject_3;
+	lv_obj_t *  tempObject_4;
 	//Obarvit na bílo
-	lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0xFFFFFF), LV_PART_MAIN);   
-	//Status lista
-	MainTemplate_Objects[eSTATUSBAR_AREA] = lv_obj_create(lv_screen_active());
+
+	//Page1 = lv_obj_create(lv_screen_active());
+	//lv_obj_set_style_bg_color(Page1, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+
+	tempObject_1 = lv_obj_create(lv_screen_active());
+	tempObject_2 = lv_obj_create(lv_screen_active());
+	tempObject_3 = lv_obj_create(lv_screen_active());
+	tempObject_4 = lv_obj_create(lv_screen_active());
+	
+	//Status lista	
 	if(HELP_BORDER_WIDTH == 0)
 	{
-		lv_obj_set_style_bg_color(MainTemplate_Objects[eSTATUSBAR_AREA], lv_color_hex(0xCCCCCC), LV_PART_MAIN);
+		lv_obj_set_style_bg_color		(tempObject_1,	lv_color_hex(0xCCCCCC),	LV_PART_MAIN											);
 	}
 	
-	lv_obj_set_size(MainTemplate_Objects[eSTATUSBAR_AREA], 320, 60);
-	lv_obj_align(MainTemplate_Objects[eSTATUSBAR_AREA], LV_ALIGN_TOP_MID, 0, -15);
+	lv_obj_set_size						(tempObject_1,	320,					60														);
+	lv_obj_align						(tempObject_1,	LV_ALIGN_TOP_MID,		0,							-15							);
+	lv_obj_set_style_border_width		(tempObject_1,	HELP_BORDER_WIDTH,		LV_PART_MAIN											);		// Nastavení šířky rámečku (2 pixely)
+	lv_obj_set_style_border_color		(tempObject_1,	lv_color_black(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)
+	lv_obj_set_style_radius				(tempObject_1,	10,						LV_PART_MAIN											);		// Nastveni zaobleni
+	lv_obj_set_style_pad_all			(tempObject_1,	0,						LV_PART_MAIN											);
+	lv_obj_set_style_pad_column			(tempObject_1,	0,						LV_PART_MAIN											);		// Zmenší mezeru na 5 pixelů
 
-	lv_obj_set_style_border_width(MainTemplate_Objects[eSTATUSBAR_AREA], HELP_BORDER_WIDTH, LV_PART_MAIN);        // Nastavení šířky rámečku (2 pixely)
-	lv_obj_set_style_border_color(MainTemplate_Objects[eSTATUSBAR_AREA], lv_color_black(), LV_PART_MAIN);         // Nastavení barvy rámečku (černá)
-	lv_obj_set_style_radius(MainTemplate_Objects[eSTATUSBAR_AREA], 10, LV_PART_MAIN);                             // Nastveni zaobleni
-	lv_obj_set_style_pad_all(MainTemplate_Objects[eSTATUSBAR_AREA], 0, LV_PART_MAIN);
-	lv_obj_set_style_pad_column(MainTemplate_Objects[eSTATUSBAR_AREA], 0, LV_PART_MAIN);                          // Zmenší mezeru na 5 pixelů
+	G_Template_StatusBar(tempObject_1);
 
-	//FenceVoltage area	
-	MainTemplate_Objects[eFENCE_INDICATOR_AREA]= lv_obj_create(lv_screen_active());    
-	lv_obj_set_size(MainTemplate_Objects[eFENCE_INDICATOR_AREA], 320, 230);
-	lv_obj_align_to(MainTemplate_Objects[eFENCE_INDICATOR_AREA], MainTemplate_Objects[eSTATUSBAR_AREA], LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
-	lv_obj_set_style_pad_all(MainTemplate_Objects[eFENCE_INDICATOR_AREA], 0, LV_PART_MAIN);
-	lv_obj_set_style_border_width(MainTemplate_Objects[eFENCE_INDICATOR_AREA], HELP_BORDER_WIDTH, LV_PART_MAIN);							// Nastavení šířky rámečku (2 pixely)
-	lv_obj_set_style_border_color(MainTemplate_Objects[eFENCE_INDICATOR_AREA], lv_color_black(), LV_PART_MAIN);							// Nastavení barvy rámečku (černá)
+	//FenceVoltage area		
+	lv_obj_set_size						(tempObject_2,	320,					230														);
+	lv_obj_align_to						(tempObject_2,	tempObject_1,			LV_ALIGN_OUT_BOTTOM_MID,	0,						0	);
+	lv_obj_set_style_pad_all			(tempObject_2,	0,						LV_PART_MAIN											);
+	lv_obj_set_style_border_width		(tempObject_2,	HELP_BORDER_WIDTH,		LV_PART_MAIN											);		// Nastavení šířky rámečku (2 pixely)
+	lv_obj_set_style_border_color		(tempObject_2,	lv_color_black(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)
 
 	//BarGraph Title
-	MainTemplate_Objects[eBARGRAPH_TITLE_AREA] = lv_obj_create(lv_screen_active());
 	if(HELP_BORDER_WIDTH == 0)
 	{
-		lv_obj_set_style_bg_color(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], lv_color_hex(0xCCCCCC), LV_PART_MAIN);        
+		lv_obj_set_style_bg_color		(tempObject_3,	lv_color_hex(0xCCCCCC),	LV_PART_MAIN											);        
 	}
-	lv_obj_set_style_pad_all(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], 2, LV_PART_MAIN);
-	lv_obj_set_size(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], 320, 30);
-	lv_obj_set_style_border_width(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], HELP_BORDER_WIDTH, LV_PART_MAIN);							// Nastavení šířky rámečku (2 pixely)
-	lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], lv_color_black(), LV_PART_MAIN);         // Nastavení barvy rámečku (černá)
-	lv_obj_align_to(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], MainTemplate_Objects[eFENCE_INDICATOR_AREA], LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
-    lv_obj_set_style_radius(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], 0, LV_PART_MAIN);                           //Nastveni zaobleni
-    lv_obj_set_flex_flow(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(MainTemplate_Objects[eBARGRAPH_TITLE_AREA], LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER);
+	lv_obj_set_style_pad_all			(tempObject_3,	2,						LV_PART_MAIN											);
+	lv_obj_set_size						(tempObject_3,	320,					30														);
+	lv_obj_set_style_border_width		(tempObject_3,	HELP_BORDER_WIDTH,		LV_PART_MAIN											);		// Nastavení šířky rámečku (2 pixely)
+	lv_obj_set_style_border_color		(tempObject_3,	lv_color_black(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)
+	lv_obj_align_to						(tempObject_3,	tempObject_2,			LV_ALIGN_OUT_BOTTOM_MID,	0,						0	);
+    lv_obj_set_style_radius				(tempObject_3,	0,						LV_PART_MAIN											);		//Nastveni zaobleni
+    lv_obj_set_flex_flow				(tempObject_3,	LV_FLEX_FLOW_COLUMN																);
+    lv_obj_set_flex_align				(tempObject_3,	LV_FLEX_ALIGN_CENTER,	LV_FLEX_ALIGN_START,		LV_FLEX_ALIGN_CENTER		);
 
-	//BarGraph	
-	MainTemplate_Objects[eBARGRAPH_AREA] = lv_obj_create(lv_screen_active());
-	lv_obj_set_size(MainTemplate_Objects[eBARGRAPH_AREA], 315, 180);
-	lv_obj_align_to(MainTemplate_Objects[eBARGRAPH_AREA], MainTemplate_Objects[eBARGRAPH_TITLE_AREA], LV_ALIGN_OUT_BOTTOM_MID, 0, -5);
-	lv_obj_set_flex_flow(MainTemplate_Objects[eBARGRAPH_AREA], LV_FLEX_FLOW_COLUMN);
-	//lv_obj_set_flex_align(cont_col_bot, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	lv_obj_set_flex_align(MainTemplate_Objects[eBARGRAPH_AREA], LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	//lv_obj_set_style_pad_top(cont_col_bot, 2, LV_PART_MAIN); // Zmenšení odsazení na 5 px
-	lv_obj_set_style_pad_all(MainTemplate_Objects[eBARGRAPH_AREA], 5, LV_PART_MAIN);
-	lv_obj_set_style_radius(MainTemplate_Objects[eBARGRAPH_AREA], 0, LV_PART_MAIN);
-	lv_obj_set_style_pad_row(MainTemplate_Objects[eBARGRAPH_AREA], 2, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
-	lv_obj_set_style_border_width(MainTemplate_Objects[eBARGRAPH_AREA], 5, LV_PART_MAIN);  // Nastavení šířky rámečku (2 pixely)
+	// //BarGraph	
+	lv_obj_set_size						(tempObject_4,	315,					180														);
+	lv_obj_align_to						(tempObject_4,	tempObject_3,			LV_ALIGN_OUT_BOTTOM_MID,	0,						-5	);
+	lv_obj_set_flex_flow				(tempObject_4,	LV_FLEX_FLOW_COLUMN																);	
+	lv_obj_set_flex_align				(tempObject_4,	LV_FLEX_ALIGN_CENTER,	LV_FLEX_ALIGN_CENTER,		LV_FLEX_ALIGN_CENTER		);	
+	lv_obj_set_style_pad_all			(tempObject_4,	5,						LV_PART_MAIN											);
+	lv_obj_set_style_radius				(tempObject_4,	0,						LV_PART_MAIN											);
+	lv_obj_set_style_pad_row			(tempObject_4,	2,						LV_PART_MAIN											);		// Zmenší mezeru na 5 pixelů
+	lv_obj_set_style_border_width		(tempObject_4,	5,						LV_PART_MAIN											);		// Nastavení šířky rámečku (2 pixely)
 	if(HELP_BORDER_WIDTH == 0)
 	{
-		lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_AREA], lv_color_white(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
+		lv_obj_set_style_border_color	(tempObject_4,	lv_color_white(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)       
 	}
 	else
 	{
-		lv_obj_set_style_border_color(MainTemplate_Objects[eBARGRAPH_AREA], lv_color_black(), LV_PART_MAIN);  // Nastavení barvy rámečku (černá)       
-	}
-	
-	lv_obj_set_style_radius(MainTemplate_Objects[eBARGRAPH_AREA], 10, LV_PART_MAIN); //Nastveni zaobleni    
+		lv_obj_set_style_border_color	(tempObject_4,	lv_color_black(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)       
+	}	
+	lv_obj_set_style_radius				(tempObject_4,	10,						LV_PART_MAIN											);		//Nastveni zaobleni    
 }
 
 void G_Create_Template()
@@ -247,36 +256,39 @@ void G_Create_Template()
 	//G_Template_BarTitle();
 }
 
-void G_Template_StatusBar ()
+void G_Template_StatusBar (lv_obj_t *  parent)
 {
-	StatusBarTemplate_Objects[eSB_ICON_AREA] = lv_obj_create(MainTemplate_Objects[eSTATUSBAR_AREA]);     
-	lv_obj_set_size(StatusBarTemplate_Objects[eSB_ICON_AREA], 300, 42);
-	lv_obj_align_to(StatusBarTemplate_Objects[eSB_ICON_AREA], MainTemplate_Objects[eSTATUSBAR_AREA], LV_ALIGN_BOTTOM_MID, 0, -3);
-	lv_obj_set_style_bg_opa(StatusBarTemplate_Objects[eSB_ICON_AREA], LV_OPA_TRANSP, LV_PART_MAIN);                                      //Nastaveni pruhlednosti
-	lv_obj_set_style_border_width(StatusBarTemplate_Objects[eSB_ICON_AREA], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
-	lv_obj_set_style_border_color(StatusBarTemplate_Objects[eSB_ICON_AREA], lv_color_black(), LV_PART_MAIN);        
-	lv_obj_set_style_radius(StatusBarTemplate_Objects[eSB_ICON_AREA], 0, LV_PART_MAIN);
-	lv_obj_set_flex_flow(StatusBarTemplate_Objects[eSB_ICON_AREA], LV_FLEX_FLOW_ROW);    
-	lv_obj_set_flex_align(StatusBarTemplate_Objects[eSB_ICON_AREA], LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-	lv_obj_set_style_pad_all(StatusBarTemplate_Objects[eSB_ICON_AREA], 0, LV_PART_MAIN);
-	lv_obj_set_style_pad_column(StatusBarTemplate_Objects[eSB_ICON_AREA], 24, LV_PART_MAIN);                                             // Zmenší mezeru na 5 pixelů
+	lv_obj_t *  tempObject_1 = lv_obj_create(parent);
+
+	lv_obj_set_size					(tempObject_1, 300,						42													);
+	lv_obj_align_to					(tempObject_1, parent,					LV_ALIGN_BOTTOM_MID,	0,						-3	);
+	lv_obj_set_style_bg_opa			(tempObject_1, LV_OPA_TRANSP,			LV_PART_MAIN										);				//Nastaveni pruhlednosti
+	lv_obj_set_style_border_width	(tempObject_1, HELP_BORDER_WIDTH,		LV_PART_MAIN										);
+	lv_obj_set_style_border_color	(tempObject_1, lv_color_black(),		LV_PART_MAIN										);
+	lv_obj_set_style_radius			(tempObject_1, 0,						LV_PART_MAIN										);
+	lv_obj_set_flex_flow			(tempObject_1, LV_FLEX_FLOW_ROW																);
+	lv_obj_set_flex_align			(tempObject_1, LV_FLEX_ALIGN_CENTER,	LV_FLEX_ALIGN_CENTER,	LV_FLEX_ALIGN_CENTER		);
+	lv_obj_set_style_pad_all		(tempObject_1, 0, LV_PART_MAIN																);
+	lv_obj_set_style_pad_column		(tempObject_1, 24, LV_PART_MAIN																);				// Zmenší mezeru na 5 pixelů
 
 	for (int i = 0; i<5; i++)
 	{
-		StatusBarTemplate_Objects[1+i] = lv_obj_create(StatusBarTemplate_Objects[eSB_ICON_AREA]);                  
-		lv_obj_set_size(StatusBarTemplate_Objects[1+i], 40, 40);
-		lv_obj_set_style_border_width(StatusBarTemplate_Objects[1+i], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
-		lv_obj_set_style_border_color(StatusBarTemplate_Objects[1+i], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
+		//StatusBarTemplate_Objects[i] = lv_obj_create(tempObject_1);      
+		StatusBarTemplate_Objects[i] = lv_img_create(tempObject_1);
+		lv_img_set_src(StatusBarTemplate_Objects[i], "A:/gps.png");  // 'S' je označení souborového systému SD v LVGL            
+		// lv_obj_set_size					(StatusBarTemplate_Objects[i], 40, 40);
+		// lv_obj_set_style_border_width	(StatusBarTemplate_Objects[i], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
+		// lv_obj_set_style_border_color	(StatusBarTemplate_Objects[i], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
 		//lv_obj_set_style_bg_color(Template_Objects[2+i], lv_color_hex(0x5E5E5C), LV_PART_MAIN);//Pozadi podle tabulky       
-		lv_obj_set_style_bg_opa(StatusBarTemplate_Objects[1+i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
-		lv_obj_set_style_radius(StatusBarTemplate_Objects[1+i], 10, LV_PART_MAIN);
-		lv_obj_set_style_pad_all(StatusBarTemplate_Objects[1+i], 0, LV_PART_MAIN);
+		// lv_obj_set_style_bg_opa			(StatusBarTemplate_Objects[i], LV_OPA_COVER, LV_PART_MAIN); //Nastaveni pruhlednosti
+		// lv_obj_set_style_radius			(StatusBarTemplate_Objects[i], 10, LV_PART_MAIN);
+		// lv_obj_set_style_pad_all		(StatusBarTemplate_Objects[i], 0, LV_PART_MAIN);
 	}
 }
 
 void G_Template_FenceeVoltage()
 {
-	//Info Label
+	//Info Label	
 	InfoLabelTemplate_Objects[eIL_INFO_AREA] = lv_obj_create(MainTemplate_Objects[eFENCE_INDICATOR_AREA]);
 	lv_obj_set_size(InfoLabelTemplate_Objects[eIL_INFO_AREA], 310, 80); 
 	lv_obj_align_to(InfoLabelTemplate_Objects[eIL_INFO_AREA], MainTemplate_Objects[eFENCE_INDICATOR_AREA], LV_ALIGN_BOTTOM_MID, 0, 0);
@@ -320,23 +332,18 @@ void G_Template_FenceeVoltage()
 	lv_obj_set_flex_align(InfoLabelTemplate_Objects[eIL_SIGNAL_AREA], LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);    
 	lv_obj_set_style_pad_row(InfoLabelTemplate_Objects[eIL_SIGNAL_AREA], 0, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
 
-    //Baterie icon
-	lv_obj_t * img_bat = lv_img_create(InfoLabelTemplate_Objects[eIL_BATERIE_ICO]);		
-    lv_img_set_src(img_bat, "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
-
-
-    InfoLabelTemplate_Objects[eIL_BATERIE_ICO] = lv_img_create(InfoLabelTemplate_Objects[eIL_BATTERY_AREA]);
-	lv_img_set_src(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], "B:/batt_gr.png");  // 'S' je označení souborového systému SD v LVGL
-    // lv_obj_set_size(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 40, 40); 
-    // lv_obj_align_to(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], InfoLabelTemplate_Objects[eIL_BATTERY_AREA], LV_ALIGN_TOP_MID, 0, 0);
-    // lv_obj_set_style_border_width(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
-    // lv_obj_set_style_border_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
-	// if(HELP_BORDER_WIDTH != 0)
-	// {
-	// 	lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky       
-	// }
-    // lv_obj_set_style_pad_all(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 0, LV_PART_MAIN);
-    // lv_obj_set_style_radius(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 20, LV_PART_MAIN);
+    //Baterie icon    
+	InfoLabelTemplate_Objects[eIL_BATERIE_ICO] = lv_obj_create(InfoLabelTemplate_Objects[eIL_SIGNAL_AREA]);
+	lv_obj_set_size(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 40, 40); 
+    lv_obj_align_to(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], InfoLabelTemplate_Objects[eIL_BATTERY_AREA], LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_set_style_border_width(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
+    lv_obj_set_style_border_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN); 
+	if(HELP_BORDER_WIDTH != 0)
+	{
+		lv_obj_set_style_bg_color(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], lv_color_hex(0x5E5E5C), LV_PART_MAIN);						//Pozadi podle tabulky       
+	}
+    lv_obj_set_style_pad_all(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 0, LV_PART_MAIN);
+    lv_obj_set_style_radius(InfoLabelTemplate_Objects[eIL_BATERIE_ICO], 20, LV_PART_MAIN);
 	
     //Signal icon
     InfoLabelTemplate_Objects[eIL_SIGNAL_ICO] = lv_obj_create(InfoLabelTemplate_Objects[eIL_SIGNAL_AREA]);
