@@ -21,7 +21,7 @@ uint8_t temporaryState = 0;        // Pomocná proměnná pro uložení stavu
 // Funkce pro inicializaci
 void InitInputReader()
 {
-	pinMode(DI_PIN, INPUT);  // Nastavení pinu jako vstupního
+	pinMode(16, INPUT);  // Nastavení pinu jako vstupního
 }
 
 // Funkce pro vyhodnocení vstupu (základní smyčka)
@@ -33,7 +33,7 @@ uint8_t EvaluateInput()
 	{
 		lastCheckTime = currentMillis;
 
-		bool currentState = digitalRead(DI_PIN);  // Čtení aktuálního stavu
+		bool currentState = digitalRead(16);  // Čtení aktuálního stavu
 
 		// Pokud došlo ke změně stavu
 		if (currentState != lastState)
@@ -44,7 +44,7 @@ uint8_t EvaluateInput()
 			lastState = currentState;        // Uložení nového stavu
 			if(currentState == 0)
 			{
-				//Serial.printf("Perioda: %d\n", period);
+				Serial.printf("Perioda: %d\n", period);
 				if( period < 800)
 				{
 					temporaryState = 2;
@@ -58,7 +58,7 @@ uint8_t EvaluateInput()
 		// Kontrola, zda je signál stabilní
 		if (isStable && (currentMillis - lastChangeTime > STABLE_THRESHOLD))
 		{
-			//Serial.printf("Stabilní signál (%d)\n",currentState);
+			Serial.printf("Stabilní signál (%d)\n",currentState);
 			if(currentState == 1)
 			{
 				temporaryState = 0;

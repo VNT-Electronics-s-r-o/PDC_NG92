@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include "grafika.h"
 #include "timers.h"
+#include "InputReader.h"
 
 #define LVGL_TICK_PERIOD 5
 
@@ -23,6 +24,9 @@ void setup()
 
     G_Grafika_Init();
     InitTimers();			// Inicializace časovačů     
+
+    InitTimers();			// Inicializace časovačů
+	InitInputReader();		// Inicializace pro čtení vstupu
 	Serial.println( "Setup done" );
 
 }
@@ -31,5 +35,6 @@ void loop()
 {
 	lv_timer_handler();     /* let the GUI do its work */
     EvaluateTimers();		// Vyhodnocení časovačů v každém cyklu smyčky	
+    EvaluateInput();		//
 	delay(10);              /* let this time pass */
 }

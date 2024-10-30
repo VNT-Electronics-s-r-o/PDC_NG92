@@ -1,5 +1,6 @@
 #include "Timers.h"
 #include "grafika.h"
+#include "InputReader.h"
 
 // Vytvoření instancí struktur pro jednotlivé timery
 Timer Timer1 = {0, true};  // Timer s intervalem 100ms a opakováním
@@ -42,6 +43,11 @@ void _timer2Callback()
 	}
 
 	int randomInt = random(10, 108);  // Vrací náhodné číslo mezi 101 a 109 (včetně 109)
+
+	if(temporaryState == 1)
+	{
+		randomInt = 0;
+	}
 
 	if(Min>randomInt)Min = randomInt;
 	if(Max<randomInt)Max = randomInt;
