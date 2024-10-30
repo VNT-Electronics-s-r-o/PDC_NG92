@@ -24,9 +24,7 @@ void _timer1Callback()
 
 void _timer2Callback()
 {
-	Serial.println("Timer2 - 1000ms interval");    
-
-	CheckCnt++;
+	Serial.println("Timer2 - 1000ms interval");
 	
 	if(CheckCnt==CNT_CHECKING_LIMIT)
 	{
