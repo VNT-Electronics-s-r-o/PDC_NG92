@@ -58,7 +58,7 @@ uint8_t EvaluateInput()
 		// Kontrola, zda je signál stabilní
 		if (isStable && (currentMillis - lastChangeTime > STABLE_THRESHOLD))
 		{
-			Serial.printf("Stabilní signál (%d)\n",currentState);
+			//Serial.printf("Stabilní signál (%d)\n",currentState);
 			if(currentState == 1)
 			{
 				temporaryState = 0;

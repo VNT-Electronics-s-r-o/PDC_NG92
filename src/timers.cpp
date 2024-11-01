@@ -9,12 +9,16 @@ Timer Timer3 = {0, false}; // Timer s intervalem 10000ms a bez opakování (jedn
 
 int rndMax= 110;
 int rndMin= 0;
+int randomInt;  // Vrací náhodné číslo mezi 101 a 109 (včetně 109)
 
+#define TFT_LED 33
+#define RELE 18
 
 #define CNT_CHECKING_LIMIT 10
 int Min = 110;
 int Max = 0;
 int CheckCnt = 0;
+int randomSig = 83;
 
 // Callbacky pro jednotlivé časovače
 void _timer1Callback()
@@ -27,6 +31,7 @@ void _timer2Callback()
 {
 	Serial.println("Timer2 - 1000ms interval");
 	
+	
 	if(CheckCnt==CNT_CHECKING_LIMIT)
 	{
 		G_UpdateChart(Max, Min, 70);
@@ -36,23 +41,45 @@ void _timer2Callback()
 		Max = 0;
 		rndMax = random(60, 110);
 		rndMin = random(10, rndMax-5);
+		randomSig = random(70, 95);  
+		randomInt = random(100, 108);  // Vrací náhodné číslo mezi 101 a 109 (včetně 109)
+		if((temporaryState == 1)||(temporaryState == 0))
+		{
+			randomInt = 0;
+		}
 	}
 	else
 	{
 		CheckCnt++;
 	}
-
-	int randomInt = random(10, 108);  // Vrací náhodné číslo mezi 101 a 109 (včetně 109)
-
-	if(temporaryState == 1)
-	{
-		randomInt = 0;
-	}
-
 	if(Min>randomInt)Min = randomInt;
 	if(Max<randomInt)Max = randomInt;
-  
-    G_Update_FenceVaule(randomInt);    
+	int helpOut = digitalRead(RELE);
+
+	switch(temporaryState)
+	{
+		case 1:
+			digitalWrite(TFT_LED, 1);
+			G_Update_FenceVaule(randomInt, 0, randomSig);
+			digitalWrite(RELE,0);
+			break; 
+		case 2:
+			digitalWrite(TFT_LED, 1);
+			G_Update_FenceVaule(randomInt, 50, randomSig);
+			digitalWrite(RELE,1-helpOut);
+			break; 
+		case 3:
+			digitalWrite(TFT_LED, 1);
+			G_Update_FenceVaule(randomInt, 100, randomSig);
+			digitalWrite(RELE,1-helpOut);
+			break;
+		default:
+			G_Update_FenceVaule(randomInt, 0, randomSig);
+			digitalWrite(RELE,0);
+			digitalWrite(TFT_LED, 0);
+			break;
+	} 
+    
 }
 
 void _timer3Callback()
@@ -63,6 +90,7 @@ void _timer3Callback()
 // Inicializační funkce (pokud by bylo potřeba časem přidávat další konfigurace)
 void InitTimers()
 {
+	pinMode(RELE, OUTPUT);
     Serial.println("InitTimers");
 	unsigned long currentMillis = millis();
 	//Timer1.Timer_lastMillis = currentMillis;

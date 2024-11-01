@@ -10,6 +10,7 @@
 		"memory": "cpp",
 		"new": "cpp",
 		"regex": "cpp",
-		"type_traits": "cpp"
+		"type_traits": "cpp",
+		"batt_gr.c": "cpp"
 	}
 }

@@ -1,6 +1,8 @@
 #include "grafika.h"
 #include <Arduino.h>
 #include "lvgl.h"
+#include "batt_gr.c"
+#include "gps.cpp"
 
 #include <SD.h>
 #include <SPI.h>
@@ -21,6 +23,9 @@
 
 #define	BARGRAPH 1
 
+
+LV_IMG_DECLARE(batt_gr);
+LV_IMG_DECLARE(gps);
 
 enum {
 	eSTATUSBAR_AREA,
@@ -52,6 +57,8 @@ enum {
 	eIL_UNIT_TEXT_LABEL,
 	eIL_BATTERY_TEXT_LABEL,
 	eIL_SIGNAL_TEXT_LABEL,
+	eIL_POWER_ICO,
+	eIL_POWER_TEXT_LABEL,
 }InfoLabelTemplateObject_e;
 
 enum {
@@ -75,7 +82,7 @@ lv_obj_t * StatusBarTemplate_Objects[NUM_ICON];  // Pole pro uložení referenc�
 //lv_obj_t * StatusIconTemplate_Objects[NUM_ICON];  // Pole pro uložení referencí na 20 objektů
 lv_obj_t * BarGraphTitle_Teplate_Objects[NUM_OBJECTS];
 lv_obj_t * BarGraph_Teplate_Objects[NUM_OBJECTS];
-lv_obj_t * InfoLabelTemplate_Objects[NUM_ICON];  // Pole pro uložení referencí na 20 objektů
+lv_obj_t * InfoLabelTemplate_Objects[25];  // Pole pro uložení referencí na 20 objektů
 lv_anim_t ArcAnim;
 lv_chart_series_t * GraphMaxValue;
 lv_chart_series_t * GraphMinValue;
@@ -148,15 +155,11 @@ void G_Grafika_Init()
 
 	Serial.println(LVGL_PDC_NG);
 
-    pinMode(TFT_LED, OUTPUT);
-	Serial.println("LED pin set to 1");
-	digitalWrite(TFT_LED, 1);
-
     lv_init();
 	tft.begin();		/*TFT Init*/
 	tft.setRotation(3);	/*TFT Rotation*/
 
-	SD_Test_Init();
+	//SD_Test_Init();
 
     lv_tick_set_cb(my_tick);
 
@@ -263,17 +266,17 @@ void G_MainBackground()
 	//Page1 = lv_obj_create(lv_screen_active());
 	//lv_obj_set_style_bg_color(Page1, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
 
-	tempObject_1 = lv_obj_create(lv_screen_active());
-	tempObject_2 = lv_obj_create(lv_screen_active());
-	tempObject_3 = lv_obj_create(lv_screen_active());
-	tempObject_4 = lv_obj_create(lv_screen_active());
+	
+	
+
+	
 	
 	//Status lista	
+	tempObject_1 = lv_obj_create(lv_screen_active());	
 	if(HELP_BORDER_WIDTH == 0)
 	{
 		lv_obj_set_style_bg_color		(tempObject_1,	lv_color_hex(0xCCCCCC),	LV_PART_MAIN											);
-	}
-	
+	}	
 	lv_obj_set_size						(tempObject_1,	320,					60														);
 	lv_obj_align						(tempObject_1,	LV_ALIGN_TOP_MID,		0,							-15							);
 	lv_obj_set_style_border_width		(tempObject_1,	HELP_BORDER_WIDTH,		LV_PART_MAIN											);		// Nastavení šířky rámečku (2 pixely)
@@ -281,20 +284,21 @@ void G_MainBackground()
 	lv_obj_set_style_radius				(tempObject_1,	10,						LV_PART_MAIN											);		// Nastveni zaobleni
 	lv_obj_set_style_pad_all			(tempObject_1,	0,						LV_PART_MAIN											);
 	lv_obj_set_style_pad_column			(tempObject_1,	0,						LV_PART_MAIN											);		// Zmenší mezeru na 5 pixelů
-
-	G_Template_StatusBar(tempObject_1);
-	lv_timer_handler();
+	G_Template_StatusBar(tempObject_1);	
+	//lv_timer_handler();
 
 	//FenceVoltage area		
+	tempObject_2 = lv_obj_create(lv_screen_active());
 	lv_obj_set_size						(tempObject_2,	320,					230														);
 	lv_obj_align_to						(tempObject_2,	tempObject_1,			LV_ALIGN_OUT_BOTTOM_MID,	0,						0	);
 	lv_obj_set_style_pad_all			(tempObject_2,	0,						LV_PART_MAIN											);
 	lv_obj_set_style_border_width		(tempObject_2,	HELP_BORDER_WIDTH,		LV_PART_MAIN											);		// Nastavení šířky rámečku (2 pixely)
 	lv_obj_set_style_border_color		(tempObject_2,	lv_color_black(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)
 	G_Template_FenceeVoltage(tempObject_2);
-	lv_timer_handler();
+	//lv_timer_handler();
 
 	//BarGraph Title
+	tempObject_3 = lv_obj_create(lv_screen_active());
 	if(HELP_BORDER_WIDTH == 0)
 	{
 		lv_obj_set_style_bg_color		(tempObject_3,	lv_color_hex(0xCCCCCC),	LV_PART_MAIN											);        
@@ -309,8 +313,10 @@ void G_MainBackground()
     lv_obj_set_flex_align				(tempObject_3,	LV_FLEX_ALIGN_CENTER,	LV_FLEX_ALIGN_START,		LV_FLEX_ALIGN_CENTER		);
 
 	G_Template_BarTitle(tempObject_3);
+	//lv_timer_handler();
 
 	// //BarGraph	
+	tempObject_4 = lv_obj_create(lv_screen_active());
 	lv_obj_set_size						(tempObject_4,	315,					180														);
 	lv_obj_align_to						(tempObject_4,	tempObject_3,			LV_ALIGN_OUT_BOTTOM_MID,	0,						-5	);
 	lv_obj_set_flex_flow				(tempObject_4,	LV_FLEX_FLOW_COLUMN																);	
@@ -328,7 +334,7 @@ void G_MainBackground()
 		lv_obj_set_style_border_color	(tempObject_4,	lv_color_black(),		LV_PART_MAIN											);		// Nastavení barvy rámečku (černá)       
 	}	
 	lv_obj_set_style_radius				(tempObject_4,	10,						LV_PART_MAIN											);		//Nastveni zaobleni    
-	//G_Template_BarGraph(tempObject_4);
+	// G_Template_BarGraph(tempObject_4);
 	G_CreateGraph(tempObject_4);
 	lv_timer_handler();
 	
@@ -352,7 +358,7 @@ void G_Template_StatusBar (lv_obj_t *  parent)
 	for (int i = 0; i<5; i++)
 	{		
 		StatusBarTemplate_Objects[i] = lv_img_create(tempObject_1);
-		lv_img_set_src(StatusBarTemplate_Objects[i], item_file[i]);
+		//lv_img_set_src(StatusBarTemplate_Objects[i], item_file[i]);
 	}
 }
 
@@ -363,6 +369,47 @@ void G_Template_FenceeVoltage(lv_obj_t *  parent)
 	lv_obj_t *  spaceArea;
 	lv_obj_t *  signalArea;	
 	lv_obj_t *  typeArea;
+	lv_obj_t *  topLabel;
+	lv_obj_t *  powerArea;
+
+	topLabel = lv_obj_create(parent);
+	lv_obj_set_size					(topLabel, 310, 80); 
+	lv_obj_align_to					(topLabel, parent, LV_ALIGN_TOP_MID, 0, 0);
+	lv_obj_set_style_border_width	(topLabel, HELP_BORDER_WIDTH, LV_PART_MAIN);
+	lv_obj_set_style_border_color	(topLabel, lv_color_black(), LV_PART_MAIN);
+	lv_obj_set_style_pad_all		(topLabel, 0, LV_PART_MAIN);
+	lv_obj_set_style_radius			(topLabel, 0, LV_PART_MAIN);
+	lv_obj_set_flex_flow			(topLabel, LV_FLEX_FLOW_ROW);
+	lv_obj_set_flex_align			(topLabel, LV_FLEX_ALIGN_END, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);    
+	lv_obj_set_style_pad_column		(topLabel, 2, LV_PART_MAIN);													// Zmenší mezeru na 5 pixelů
+
+	//Power area
+	powerArea = lv_obj_create(topLabel);
+	lv_obj_set_size					(powerArea, 52, 78); 
+	lv_obj_align_to					(powerArea, topLabel, LV_ALIGN_TOP_MID, 0, 0);
+	lv_obj_set_style_border_width	(powerArea, HELP_BORDER_WIDTH, LV_PART_MAIN);
+	lv_obj_set_style_border_color	(powerArea, lv_color_black(), LV_PART_MAIN);
+	lv_obj_set_style_pad_all		(powerArea, 0, LV_PART_MAIN);
+	lv_obj_set_style_radius			(powerArea, 10, LV_PART_MAIN);
+	lv_obj_set_flex_flow			(powerArea, LV_FLEX_FLOW_COLUMN);
+	lv_obj_set_flex_align			(powerArea, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);    
+	lv_obj_set_style_pad_row		(powerArea, 0, LV_PART_MAIN);  // Zmenší mezeru na 5 pixelů
+
+	//Power icon
+	InfoLabelTemplate_Objects[eIL_POWER_ICO] = lv_img_create(powerArea);
+	//lv_img_set_src(InfoLabelTemplate_Objects[eIL_POWER_ICO] , "B:\\batt_gr.png");
+	lv_img_set_src(InfoLabelTemplate_Objects[eIL_POWER_ICO] , &batt_gr);
+	
+	//Baterie Value
+    InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL] = lv_label_create(powerArea);    
+    lv_obj_set_style_border_width	(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL], HELP_BORDER_WIDTH, LV_PART_MAIN);                       
+    lv_obj_set_style_border_color	(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL], lv_color_black(), LV_PART_MAIN);        
+    lv_obj_set_style_pad_all		(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL], HELP_BORDER_WIDTH, LV_PART_MAIN);
+    lv_obj_set_style_radius			(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL], 10, LV_PART_MAIN);
+	lv_obj_set_style_text_color		(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL], lv_color_hex(0x5E5E5C), LV_PART_MAIN);  // Barva písma bílá
+	lv_label_set_text				(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL],	"0 %");
+
+
 	
 
 	//Info Label	
@@ -412,11 +459,11 @@ void G_Template_FenceeVoltage(lv_obj_t *  parent)
 
 	//Baterie icon
 	InfoLabelTemplate_Objects[eIL_BATERIE_ICO] = lv_img_create(batteryArea);
-	lv_img_set_src(InfoLabelTemplate_Objects[eIL_BATERIE_ICO] , "B:\\batt_gr.png");
+	lv_img_set_src(InfoLabelTemplate_Objects[eIL_BATERIE_ICO] , &gps);
 
 	//Baterie icon
 	InfoLabelTemplate_Objects[eIL_SIGNAL_ICO] = lv_img_create(signalArea);
-	lv_img_set_src(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO] , "B:\\sig_gr.png");
+	//lv_img_set_src(InfoLabelTemplate_Objects[eIL_SIGNAL_ICO] , "B:\\sig_gr.bmp");
 
 	//Baterie Value
     InfoLabelTemplate_Objects[eIL_BATTERY_TEXT_LABEL] = lv_label_create(batteryArea);    
@@ -434,7 +481,7 @@ void G_Template_FenceeVoltage(lv_obj_t *  parent)
     lv_obj_set_style_pad_all		(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 0, LV_PART_MAIN);
     lv_obj_set_style_radius			(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 10, LV_PART_MAIN);	
 	lv_obj_set_style_text_color		(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], lv_color_hex(0x5E5E5C), LV_PART_MAIN);  // Barva písma bílá
-	lv_label_set_text				(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 	"85%");
+	lv_label_set_text				(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 	"0%");
 
 
 	//ARC Fencee
@@ -528,7 +575,7 @@ void G_Insert_Text()
 	lv_label_set_text(InfoLabelTemplate_Objects[eIL_TYPE_TEXT_LABEL],		"OUTPUT POWER");	
 	lv_label_set_text(InfoLabelTemplate_Objects[eIL_UNIT_TEXT_LABEL],		"kV");
 	lv_label_set_text(InfoLabelTemplate_Objects[eIL_BATTERY_TEXT_LABEL],	"12,1");
-	lv_label_set_text(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 	"85%");
+	lv_label_set_text(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL], 	"0%");
 	lv_label_set_text(BarGraphTitle_Teplate_Objects[eBGT_TITLE], 			"OUTPUT POWER");
 }
 
@@ -585,7 +632,7 @@ void G_CreateGraph(lv_obj_t *  parent)
     // }
 }
 
-void G_Update_FenceVaule(int value)
+void G_Update_FenceVaule(int value, int power, int signal)
 {
 	int helpPercernt = 0;
 	int led = 0;
@@ -597,11 +644,14 @@ void G_Update_FenceVaule(int value)
 	else led = 0;	
 
 	helpPercernt = value*100/110;
-	Serial.println(helpPercernt);	
-	lv_label_set_text_fmt	(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%d.%d", value/10, value%10);
-	lv_arc_set_value		(InfoLabelTemplate_Objects[eIL_ARC_FENCE],helpPercernt);
-	
+	Serial.println(helpPercernt);
+	lv_arc_set_value		(InfoLabelTemplate_Objects[eIL_ARC_FENCE], helpPercernt);
 	G_Anime_Arc(helpPercernt, led);	
+
+	
+	lv_label_set_text_fmt	(InfoLabelTemplate_Objects[eIL_FENCE_TEXT_LABEL],		"%d.%d", value/10, value%10);	
+	lv_label_set_text_fmt	(InfoLabelTemplate_Objects[eIL_SIGNAL_TEXT_LABEL],		"%d %%", signal);
+	lv_label_set_text_fmt	(InfoLabelTemplate_Objects[eIL_POWER_TEXT_LABEL],		"%d %%", power);
 }
 
 void G_UpdateChart(int max, int min, int threshold)

@@ -8,7 +8,7 @@
 #define STABLE_THRESHOLD 2500  // Prahová hodnota pro stabilní stav (5 sekund)
 
 
-extern uint8_t temporaryState = 0;
+extern uint8_t temporaryState;
 
 // Deklarace funkcí
 void InitInputReader();  // Inicializace pro čtení vstupu

@@ -7,6 +7,8 @@
 #include "InputReader.h"
 
 #define LVGL_TICK_PERIOD 5
+#define TFT_LED 33
+
 
 void lv_tick_task(void *arg);
 
@@ -14,6 +16,10 @@ void setup()
 {
 	Serial.begin(115200);
 	while(!Serial){};
+
+    Serial.print("Aktuální frekvence: ");
+    Serial.print(getCpuFrequencyMhz());
+    Serial.println(" MHz");
     randomSeed(analogRead(0));  // Pro lepší náhodnost, čte se hodnota z nepřipojeného analogového pinu
 
     // if(!SPIFFS.begin(true)){
@@ -22,10 +28,13 @@ void setup()
     // }
     // Serial.println("SPIFFS mount successful");
 
-    G_Grafika_Init();
-    InitTimers();			// Inicializace časovačů     
+    pinMode(TFT_LED, OUTPUT);
+    
+	Serial.println("LED pin set to 1");
+	digitalWrite(TFT_LED, 1);
 
-    InitTimers();			// Inicializace časovačů
+    G_Grafika_Init();
+    InitTimers();			// Inicializace časovačů 
 	InitInputReader();		// Inicializace pro čtení vstupu
 	Serial.println( "Setup done" );
 
